@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Husstandsøkonomi</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+:root{
+  --green:#1D9E75;--green-l:#E1F5EE;--green-d:#0F6E56;--red:#A32D2D;--red-l:#FCEBEB;
+  --amber:#B87316;--amber-l:#FEF3E2;--blue:#378ADD;--blue-l:#E6F1FB;
+  --bg:#F7F7F4;--bg2:#EFEFEB;--bg3:#E5E5E0;--card:#FFFFFF;--border:#E0E0DA;
+  --text:#1A1A18;--text2:#5A5A54;--text3:#9A9A90;
+  --r:12px;--rs:8px;--sh:0 1px 3px rgba(0,0,0,.07),0 4px 12px rgba(0,0,0,.04);
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+[data-theme="dark"]{
+  --bg:#141414;--bg2:#1E1E1E;--bg3:#282828;--card:#1E1E1E;--border:#2E2E2E;
+  --text:#F0F0EC;--text2:#A0A09A;--text3:#606058;
+  --green-l:#0D3326;--red-l:#2D1414;--amber-l:#2D1E08;--blue-l:#0C2340;
+  --sh:0 1px 3px rgba(0,0,0,.3),0 4px 12px rgba(0,0,0,.2);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;transition:background .2s,color .2s;}
+
+/* PIN SKJERM */
+.pin-screen{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;align-items:center;justify-content:center;}
+.pin-box{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:2.5rem 2rem;max-width:360px;width:100%;text-align:center;box-shadow:var(--sh);}
+.pin-logo{font-size:18px;font-weight:600;color:var(--text);margin-bottom:.25rem;}
+.pin-logo span{color:var(--green);}
+.pin-subtitle{font-size:13px;color:var(--text2);margin-bottom:2rem;}
+.pin-dots{display:flex;justify-content:center;gap:12px;margin-bottom:1.5rem;}
+.pin-dot{width:14px;height:14px;border-radius:50%;background:var(--bg3);border:2px solid var(--border);transition:all .2s;}
+.pin-dot.filled{background:var(--green);border-color:var(--green);}
+.pin-dot.shake{animation:shake .3s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}
+}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem;}
+.pin-btn{background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--rs);padding:16px;font-size:20px;font-weight:500;cursor:pointer;font-family:var(--mono);transition:all .15s;color:var(--text);}
+.pin-btn:hover{background:var(--green-l);border-color:var(--green);color:var(--green-d);}
+.pin-btn:active{transform:scale(.95);}
+.pin-error{font-size:12px;color:var(--red);min-height:18px;margin-bottom:.5rem;}
+.pin-change-wrap{margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--border);}
+.pin-change-wrap summary{font-size:12px;color:var(--text3);cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:center;gap:4px;}
+.pin-change-wrap summary::-webkit-details-marker{display:none;}
+.pin-change-inner{margin-top:.75rem;display:flex;gap:8px;}
+.pin-change-inner input{flex:1;padding:8px 12px;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--rs);font-size:14px;font-family:var(--mono);color:var(--text);outline:none;letter-spacing:.2em;}
+.pin-change-inner input:focus{border-color:var(--green);}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:100;background:var(--card);border-bottom:1px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;height:52px;gap:1rem;box-shadow:var(--sh);}
+.nav-logo{font-size:15px;font-weight:600;color:var(--text);letter-spacing:-.02em;flex:1;}
+.nav-logo span{color:var(--green);}
+.nav-tabs{display:flex;gap:2px;}
+.nav-tab{background:none;border:none;padding:6px 12px;border-radius:var(--rs);font-size:13px;color:var(--text2);cursor:pointer;font-family:var(--font);transition:all .15s;display:flex;align-items:center;gap:5px;}
+.nav-tab:hover{background:var(--bg2);color:var(--text);}
+.nav-tab.active{background:var(--green-l);color:var(--green-d);font-weight:500;}
+.nav-actions{display:flex;gap:6px;align-items:center;}
+.icon-btn{background:none;border:1px solid var(--border);border-radius:var(--rs);width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:15px;transition:all .15s;}
+.icon-btn:hover{background:var(--bg2);color:var(--text);}
+.lang-btn{background:none;border:1px solid var(--border);border-radius:var(--rs);padding:0 10px;height:32px;font-size:12px;font-weight:500;cursor:pointer;color:var(--text2);font-family:var(--font);transition:all .15s;}
+
+/* VIEWS */
+.view{display:none;min-height:calc(100vh - 52px);}
+.view.active{display:block;}
+
+/* WIZARD */
+.wiz-wrap{max-width:600px;margin:0 auto;padding:3rem 1.5rem;}
+.wiz-step{display:none;animation:fadeUp .3s ease;}
+.wiz-step.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.prog-track{height:2px;background:var(--bg3);border-radius:2px;margin-bottom:2.5rem;}
+.prog-fill{height:100%;background:var(--green);border-radius:2px;transition:width .4s ease;}
+.wiz-eyebrow{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:.5rem;}
+.wiz-title{font-size:24px;font-weight:600;letter-spacing:-.03em;color:var(--text);margin-bottom:.5rem;line-height:1.2;}
+.wiz-hint{font-size:13px;color:var(--text2);margin-bottom:1.75rem;}
+.big-field{margin-bottom:1.25rem;}
+.big-field label{display:block;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px;}
+.big-input{width:100%;padding:14px 18px;font-size:22px;font-weight:500;font-family:var(--mono);background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);color:var(--text);outline:none;transition:border-color .15s;}
+.big-input:focus{border-color:var(--green);}
+.big-input::placeholder{color:var(--text3);font-weight:400;}
+.name-input{width:100%;padding:10px 14px;font-size:15px;font-weight:500;background:var(--card);border:1.5px solid var(--border);border-radius:var(--rs);color:var(--text);outline:none;transition:border-color .15s;font-family:var(--font);}
+.name-input:focus{border-color:var(--green);}
+
+/* AVHUKING-KORT */
+.check-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:1.5rem;}
+.check-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:1rem;cursor:pointer;transition:all .15s;user-select:none;text-align:center;}
+.check-card:hover{border-color:var(--green);}
+.check-card.checked{border-color:var(--green);background:var(--green-l);}
+.check-card i{font-size:24px;color:var(--text3);margin-bottom:8px;display:block;}
+.check-card.checked i{color:var(--green-d);}
+.check-card .cc-title{font-size:13px;font-weight:600;color:var(--text);}
+.check-card .cc-sub{font-size:11px;color:var(--text2);margin-top:3px;}
+.check-card.checked .cc-title{color:var(--green-d);}
+.check-mark{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.check-card.checked .check-mark{background:var(--green);border-color:var(--green);}
+.check-mark i{font-size:11px;color:#fff;display:none;}
+.check-card.checked .check-mark i{display:block;}
+
+.dur-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem;}
+.dur-btn{background:var(--card);border:1.5px solid var(--border);border-radius:var(--rs);padding:10px 8px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;font-family:var(--font);transition:all .15s;text-align:center;}
+.dur-btn:hover{border-color:var(--green);color:var(--text);}
+.dur-btn.sel{border-color:var(--green);background:var(--green-l);color:var(--green-d);}
+.custom-dur{display:none;margin-bottom:1.5rem;}
+.custom-dur.show{display:flex;align-items:center;gap:10px;}
+.custom-dur label{font-size:13px;color:var(--text2);white-space:nowrap;}
+.wiz-nav{display:flex;justify-content:space-between;align-items:center;margin-top:1.5rem;}
+.btn{display:inline-flex;align-items:center;gap:6px;border:none;border-radius:var(--rs);padding:10px 22px;font-size:14px;font-weight:500;cursor:pointer;font-family:var(--font);transition:all .15s;}
+.btn-primary{background:var(--green);color:#fff;}
+.btn-primary:hover{background:var(--green-d);}
+.btn-primary:disabled{opacity:.35;pointer-events:none;}
+.btn-ghost{background:none;border:1.5px solid var(--border);color:var(--text2);}
+.btn-ghost:hover{background:var(--bg2);color:var(--text);}
+.btn-add{background:none;border:1.5px solid var(--green);color:var(--green);border-radius:var(--rs);padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font);transition:all .15s;display:inline-flex;align-items:center;gap:5px;}
+.btn-add:hover{background:var(--green-l);}
+.btn-sm{padding:6px 14px;font-size:12px;}
+
+/* PERIODE LISTE */
+.p-list{margin-bottom:1.25rem;}
+.p-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg2);border-radius:var(--rs);margin-bottom:6px;}
+.p-item-name{font-weight:600;font-size:14px;min-width:130px;}
+.p-item-label{font-size:12px;color:var(--text3);font-family:var(--mono);min-width:90px;}
+.p-item-val{flex:1;font-size:13px;color:var(--text2);}
+.p-item-flags{display:flex;gap:4px;}
+.p-flag{font-size:10px;padding:2px 7px;border-radius:10px;background:var(--green-l);color:var(--green-d);font-weight:500;}
+.p-item-del{background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:2px;transition:color .15s;}
+.p-item-del:hover{color:var(--red);}
+.ny-box{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:1.25rem;margin-bottom:1.25rem;}
+.ny-box h4{font-size:13px;font-weight:600;color:var(--text);margin-bottom:1rem;}
+
+/* INPUT */
+input[type=number],input[type=text],select{background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--rs);padding:9px 12px;font-size:14px;color:var(--text);font-family:var(--font);outline:none;transition:border-color .15s;width:100%;}
+input:focus,select:focus{border-color:var(--green);background:var(--card);}
+.field{margin-bottom:.875rem;}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:5px;}
+
+/* INFO-BOBLE */
+.info-wrap{display:inline-flex;align-items:center;gap:5px;position:relative;margin-bottom:.875rem;}
+.info-trigger{width:18px;height:18px;border-radius:50%;background:var(--blue-l);border:1px solid rgba(55,138,221,.3);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;font-weight:700;color:var(--blue);transition:all .15s;flex-shrink:0;}
+.info-trigger:hover{background:var(--blue);color:#fff;}
+.info-popup{display:none;position:absolute;left:24px;top:-4px;z-index:10;background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:10px 14px;font-size:12px;color:var(--text2);line-height:1.5;min-width:240px;max-width:320px;box-shadow:var(--sh);}
+.info-popup.open{display:block;}
+.info-label{font-size:12px;color:var(--text2);}
+
+/* DETAIL */
+.detail-layout{display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:calc(100vh - 52px);}
+.detail-left{padding:1.5rem;border-right:1px solid var(--border);overflow-y:auto;max-height:calc(100vh - 52px);}
+.detail-right{padding:1.5rem;overflow-y:auto;max-height:calc(100vh - 52px);background:var(--bg);}
+.detail-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.detail-badge{background:var(--green-l);color:var(--green-d);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;font-family:var(--mono);white-space:nowrap;}
+.detail-title{font-size:16px;font-weight:600;letter-spacing:-.02em;}
+.detail-subtitle{font-size:12px;color:var(--text2);margin-top:2px;}
+.detail-flags{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap;}
+.detail-flag{font-size:10px;padding:2px 8px;border-radius:10px;background:var(--bg2);color:var(--text2);}
+.detail-nav{display:flex;gap:8px;margin-left:auto;flex-shrink:0;}
+
+/* ACCORDION */
+.acc{border:1.5px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;}
+.acc-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;background:var(--card);transition:background .15s;user-select:none;}
+.acc-head:hover{background:var(--bg2);}
+.acc-head-title{font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;color:var(--text);}
+.acc-head-title i{color:var(--text3);font-size:16px;}
+.acc-chev{color:var(--text3);font-size:16px;transition:transform .2s;}
+.acc-chev.open{transform:rotate(180deg);}
+.acc-body{display:none;padding:14px 16px;background:var(--card);border-top:1px solid var(--border);}
+.acc-body.open{display:block;}
+
+/* SPAREKONTO */
+.sparekonto-liste{margin-bottom:.75rem;}
+.sparekonto-item{background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--rs);padding:12px 14px;margin-bottom:8px;}
+.sparekonto-item-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.sparekonto-del{background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px;padding:2px;transition:color .15s;}
+.sparekonto-del:hover{color:var(--red);}
+.sparekonto-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.overfort-tag{font-size:10px;color:var(--green-d);background:var(--green-l);padding:2px 7px;border-radius:10px;display:inline-block;margin-top:3px;}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem;}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:12px 14px;box-shadow:var(--sh);}
+.kpi-label{font-size:11px;font-weight:500;color:var(--text3);margin-bottom:4px;letter-spacing:.02em;}
+.kpi-value{font-size:20px;font-weight:600;font-family:var(--mono);letter-spacing:-.02em;}
+.kpi-value.pos{color:var(--green);}
+.kpi-value.neg{color:var(--red);}
+
+/* CHART */
+.chart-box{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:8px;box-shadow:var(--sh);}
+.chart-box h4{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:10px;}
+.chart-wrap{position:relative;height:180px;}
+
+/* DASHBOARD */
+.dash-wrap{max-width:1100px;margin:0 auto;padding:1.5rem;}
+.dash-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.5rem;}
+.dash-kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem 1.5rem;box-shadow:var(--sh);}
+.dash-kpi-l{font-size:11px;font-weight:500;color:var(--text3);letter-spacing:.03em;margin-bottom:6px;}
+.dash-kpi-v{font-size:26px;font-weight:600;font-family:var(--mono);letter-spacing:-.03em;}
+.dash-kpi-v.pos{color:var(--green);}
+.dash-kpi-v.neg{color:var(--red);}
+.dash-charts{display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-bottom:10px;}
+.dash-charts2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem;}
+.dash-chart-box{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;box-shadow:var(--sh);}
+.dash-chart-box h3{font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px;}
+.dash-chart-wrap{position:relative;height:240px;}
+.tidslinje{display:flex;border-radius:var(--rs);overflow:hidden;border:1px solid var(--border);margin-bottom:1.5rem;}
+.tl-seg{flex:1;padding:10px 12px;font-size:12px;border-right:1px solid rgba(0,0,0,.08);cursor:pointer;transition:filter .15s;}
+.tl-seg:last-child{border-right:none;}
+.tl-seg:hover{filter:brightness(.95);}
+.tl-seg.active-seg{outline:2px solid var(--green);outline-offset:-2px;}
+.tl-seg.pos{background:var(--green-l);}
+.tl-seg.neg{background:var(--red-l);}
+.tl-seg.neu{background:var(--amber-l);}
+.tl-ar{font-size:10px;color:var(--text3);}
+.tl-name{font-weight:600;font-size:12px;color:var(--text);}
+.tl-val{font-size:11px;color:var(--text2);font-family:var(--mono);}
+.tbl-wrap{overflow-x:auto;}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.tbl th{text-align:left;padding:8px 12px;font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid var(--border);}
+.tbl td{padding:9px 12px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:13px;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:var(--bg2);}
+.tbl .pos{color:var(--green);}
+.tbl .neg{color:var(--red);}
+
+/* UTIL */
+.divider{border:none;border-top:1px solid var(--border);margin:1rem 0;}
+.sek-tittel{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin:1.25rem 0 .75rem;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.sumrad{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-top:1px solid var(--border);margin-top:.5rem;font-size:14px;}
+.sumrad strong{font-family:var(--mono);font-size:16px;}
+@media(max-width:768px){
+  .detail-layout{grid-template-columns:1fr;}
+  .detail-right{border-top:1px solid var(--border);max-height:none;}
+  .detail-left{max-height:none;}
+  .dash-kpi-grid{grid-template-columns:1fr 1fr;}
+  .dash-charts,.dash-charts2{grid-template-columns:1fr;}
+  .nav-tabs{display:none;}
+  .check-grid{grid-template-columns:1fr 1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- PIN SKJERM -->
+<div class="pin-screen" id="pin-screen">
+  <div class="pin-box">
+    <div class="pin-logo">Husstand<span>økonomi</span></div>
+    <div class="pin-subtitle">Skriv inn PIN-koden for å fortsette</div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="d0"></div>
+      <div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div>
+      <div class="pin-dot" id="d3"></div>
+    </div>
+    <div class="pin-error" id="pin-error"></div>
+    <div class="pin-grid">
+      <button class="pin-btn" onclick="pinTast('1')">1</button>
+      <button class="pin-btn" onclick="pinTast('2')">2</button>
+      <button class="pin-btn" onclick="pinTast('3')">3</button>
+      <button class="pin-btn" onclick="pinTast('4')">4</button>
+      <button class="pin-btn" onclick="pinTast('5')">5</button>
+      <button class="pin-btn" onclick="pinTast('6')">6</button>
+      <button class="pin-btn" onclick="pinTast('7')">7</button>
+      <button class="pin-btn" onclick="pinTast('8')">8</button>
+      <button class="pin-btn" onclick="pinTast('9')">9</button>
+      <button class="pin-btn" onclick="pinTast('')" style="font-size:14px;color:var(--text3);">—</button>
+      <button class="pin-btn" onclick="pinTast('0')">0</button>
+      <button class="pin-btn" onclick="pinSlett()" style="font-size:18px;">⌫</button>
+    </div>
+    <details class="pin-change-wrap">
+      <summary><i class="ti ti-settings" style="font-size:13px;"></i> Endre PIN</summary>
+      <div class="pin-change-inner">
+        <input type="password" id="ny-pin-input" maxlength="4" placeholder="Ny 4-sifret PIN" inputmode="numeric">
+        <button class="btn btn-primary btn-sm" onclick="endrePIN()">Lagre</button>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px;">Standard PIN er 1234 — endre til noe du deler med de du vil gi tilgang.</div>
+    </details>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">Husstand<span>økonomi</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="goView('wizard')" id="tab-wizard"><i class="ti ti-list-check"></i> Oppsett</button>
+    <button class="nav-tab" onclick="goView('detail')" id="tab-detail"><i class="ti ti-layout-columns"></i> Perioder</button>
+    <button class="nav-tab" onclick="goView('dashboard')" id="tab-dashboard"><i class="ti ti-chart-bar"></i> Oversikt</button>
+  </div>
+  <div class="nav-actions">
+    <button class="lang-btn" onclick="toggleLang()" id="lang-btn">EN</button>
+    <button class="icon-btn" onclick="toggleTheme()" title="Bytt tema"><i class="ti ti-moon" id="theme-icon"></i></button>
+    <button class="icon-btn" onclick="resetAll()" title="Nullstill data"><i class="ti ti-trash"></i></button>
+  </div>
+</nav>
+
+<!-- VIEW 1: VEIVISER -->
+<div class="view active" id="view-wizard">
+  <div class="wiz-wrap">
+    <div class="prog-track"><div class="prog-fill" id="wiz-prog" style="width:14%"></div></div>
+
+    <!-- Steg 1: Navn og inntekt -->
+    <div class="wiz-step active" id="wiz-1">
+      <div class="wiz-eyebrow">Steg 1 av 4 — Inntekt</div>
+      <div class="wiz-title">Hva vil du kalle perioden, og hva tjener husstanden?</div>
+      <div class="wiz-hint">Gi perioden et navn som beskriver livssituasjonen — f.eks. "Studieperiode", "Småbarnsperiode".</div>
+      <div class="big-field">
+        <label>Navn på perioden</label>
+        <input class="name-input" type="text" id="w1-navn" placeholder='f.eks. "Studieperiode"' oninput="sjekkSteg1()">
+      </div>
+      <div class="big-field">
+        <label>Netto husstandsinntekt / mnd (kr)</label>
+        <input class="big-input" type="number" id="w1-inntekt" placeholder="65 000" min="0" oninput="sjekkSteg1()">
+        <div style="font-size:11px;color:var(--text3);margin-top:5px;">Samlet netto etter skatt for alle i husstanden.</div>
+      </div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:.75rem;">Hvor lenge varer denne perioden?</div>
+      <div class="dur-grid" id="dur-grid-1">
+        <button class="dur-btn" onclick="velgVarighet(1,1)">1 år</button>
+        <button class="dur-btn" onclick="velgVarighet(1,2)">2 år</button>
+        <button class="dur-btn" onclick="velgVarighet(1,3)">3 år</button>
+        <button class="dur-btn" onclick="velgVarighet(1,5)">5 år</button>
+        <button class="dur-btn" onclick="velgVarighet(1,10)">10 år</button>
+        <button class="dur-btn" onclick="velgVarighet(1,15)">15 år</button>
+        <button class="dur-btn" onclick="velgVarighet(1,20)">20 år</button>
+        <button class="dur-btn" onclick="velgVarighet(1,-1)">Egendefinert</button>
+      </div>
+      <div class="custom-dur" id="custom-dur-1">
+        <label>Antall år:</label>
+        <input type="number" id="custom-ar-1" min="1" max="50" value="4" style="max-width:100px;" oninput="sjekkSteg1()">
+      </div>
+      <div class="wiz-nav">
+        <span></span>
+        <button class="btn btn-primary" id="btn-steg1" onclick="gaaTilSteg(2)" disabled>Neste <i class="ti ti-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- Steg 2: Hva er inkludert -->
+    <div class="wiz-step" id="wiz-2">
+      <div class="wiz-eyebrow">Steg 2 av 4 — Hva er inkludert?</div>
+      <div class="wiz-title">Hvilke sparekategorier gjelder i denne perioden?</div>
+      <div class="wiz-hint">Huk av det som er aktuelt. De relevante feltene dukker opp når du fyller inn detaljer.</div>
+      <div class="check-grid">
+        <div class="check-card" id="cc-bolig" onclick="toggleCheck('bolig')">
+          <div class="check-mark"><i class="ti ti-check"></i></div>
+          <i class="ti ti-home"></i>
+          <div class="cc-title">Bolig</div>
+          <div class="cc-sub">Eier bolig med eller uten lån</div>
+        </div>
+        <div class="check-card" id="cc-konto" onclick="toggleCheck('konto')">
+          <div class="check-mark"><i class="ti ti-check"></i></div>
+          <i class="ti ti-building-bank"></i>
+          <div class="cc-title">Penger på konto</div>
+          <div class="cc-sub">Bankkonto, BSU o.l.</div>
+        </div>
+        <div class="check-card" id="cc-fond" onclick="toggleCheck('fond')">
+          <div class="check-mark"><i class="ti ti-check"></i></div>
+          <i class="ti ti-chart-line"></i>
+          <div class="cc-title">Investert i fond</div>
+          <div class="cc-sub">Aksjer, fond, ASK o.l.</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:1.5rem;">Du kan alltid endre dette senere.</div>
+      <div class="wiz-nav">
+        <button class="btn btn-ghost" onclick="gaaTilSteg(1)"><i class="ti ti-arrow-left"></i> Tilbake</button>
+        <button class="btn btn-primary" onclick="gaaTilSteg(3)">Neste <i class="ti ti-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- Steg 3: Flere perioder -->
+    <div class="wiz-step" id="wiz-3">
+      <div class="wiz-eyebrow">Steg 3 av 4 — Inntektsbane</div>
+      <div class="wiz-title">Forventer du endring i inntekt fremover?</div>
+      <div class="wiz-hint">Legg til nye perioder — f.eks. etter studie, jobbskifte eller barn. Hopp over hvis du ikke vet.</div>
+      <div class="p-list" id="periode-liste"></div>
+      <div class="ny-box">
+        <h4>Legg til neste periode</h4>
+        <div class="field">
+          <label>Navn på perioden</label>
+          <input type="text" id="w3-navn" placeholder='f.eks. "Karrierefase"' oninput="sjekkLeggTil()">
+        </div>
+        <div class="field">
+          <label>Netto husstandsinntekt / mnd (kr)</label>
+          <input type="number" id="w3-inntekt" placeholder="85 000" min="0" oninput="sjekkLeggTil()">
+        </div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:.75rem;">Hva er inkludert i denne perioden?</div>
+        <div class="check-grid" style="margin-bottom:1rem;">
+          <div class="check-card" id="cc2-bolig" onclick="toggleCheck2('bolig')">
+            <div class="check-mark"><i class="ti ti-check"></i></div>
+            <i class="ti ti-home"></i>
+            <div class="cc-title">Bolig</div>
+          </div>
+          <div class="check-card" id="cc2-konto" onclick="toggleCheck2('konto')">
+            <div class="check-mark"><i class="ti ti-check"></i></div>
+            <i class="ti ti-building-bank"></i>
+            <div class="cc-title">Konto</div>
+          </div>
+          <div class="check-card" id="cc2-fond" onclick="toggleCheck2('fond')">
+            <div class="check-mark"><i class="ti ti-check"></i></div>
+            <i class="ti ti-chart-line"></i>
+            <div class="cc-title">Fond</div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:.75rem;">Hvor lenge varer dette?</div>
+        <div class="dur-grid" id="dur-grid-2">
+          <button class="dur-btn" onclick="velgVarighet(2,1)">1 år</button>
+          <button class="dur-btn" onclick="velgVarighet(2,2)">2 år</button>
+          <button class="dur-btn" onclick="velgVarighet(2,3)">3 år</button>
+          <button class="dur-btn" onclick="velgVarighet(2,5)">5 år</button>
+          <button class="dur-btn" onclick="velgVarighet(2,10)">10 år</button>
+          <button class="dur-btn" onclick="velgVarighet(2,15)">15 år</button>
+          <button class="dur-btn" onclick="velgVarighet(2,20)">20 år</button>
+          <button class="dur-btn" onclick="velgVarighet(2,-1)">Egendefinert</button>
+        </div>
+        <div class="custom-dur" id="custom-dur-2">
+          <label>Antall år:</label>
+          <input type="number" id="custom-ar-2" min="1" max="50" value="4" style="max-width:100px;" oninput="sjekkLeggTil()">
+        </div>
+        <button class="btn-add" id="btn-legg-til" onclick="leggTilPeriode()" disabled><i class="ti ti-plus"></i> Legg til periode</button>
+      </div>
+      <div class="wiz-nav">
+        <button class="btn btn-ghost" onclick="gaaTilSteg(2)"><i class="ti ti-arrow-left"></i> Tilbake</button>
+        <button class="btn btn-primary" onclick="gaaTilSteg(4)">Neste <i class="ti ti-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- Steg 4: Oppsummering -->
+    <div class="wiz-step" id="wiz-4">
+      <div class="wiz-eyebrow">Steg 4 av 4 — Klar!</div>
+      <div class="wiz-title">Inntektsbanen er satt opp</div>
+      <div class="wiz-hint">Nå fyller du inn detaljer for hver periode. Tall overføres automatisk til neste periode.</div>
+      <div class="p-list" id="periode-liste-oppsummering"></div>
+      <div class="wiz-nav">
+        <button class="btn btn-ghost" onclick="gaaTilSteg(3)"><i class="ti ti-arrow-left"></i> Tilbake</button>
+        <button class="btn btn-primary" onclick="startDetaljer()">Fyll inn detaljer <i class="ti ti-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW 2: PERIODEDETALJER -->
+<div class="view" id="view-detail">
+  <div class="detail-layout">
+    <div class="detail-left">
+      <div class="detail-header">
+        <div>
+          <div class="detail-badge" id="detail-badge">Periode 1</div>
+          <div class="detail-title" id="detail-title">Studieperiode</div>
+          <div class="detail-subtitle" id="detail-subtitle">2025–2027 · kr 25 000 / mnd</div>
+          <div class="detail-flags" id="detail-flags"></div>
+        </div>
+        <div class="detail-nav">
+          <button class="btn btn-ghost btn-sm" id="btn-forrige" onclick="byttPeriode(-1)"><i class="ti ti-arrow-left"></i></button>
+          <button class="btn btn-ghost btn-sm" id="btn-neste" onclick="byttPeriode(1)"><i class="ti ti-arrow-right"></i></button>
+          <button class="btn btn-primary btn-sm" onclick="goView('dashboard')"><i class="ti ti-chart-bar"></i> Oversikt</button>
+        </div>
+      </div>
+
+      <!-- BOUTGIFTER — kun hvis bolig er huket av -->
+      <div id="seksjon-bolig">
+        <div class="acc">
+          <div class="acc-head" onclick="toggleAcc('bolig')">
+            <div class="acc-head-title"><i class="ti ti-home"></i> Boutgifter</div>
+            <i class="ti ti-chevron-down acc-chev open" id="chev-bolig"></i>
+          </div>
+          <div class="acc-body open" id="body-bolig">
+            <div class="field">
+              <label>Boliglån / husleie per mnd (kr)</label>
+              <input type="number" id="f-bolig-mnd" placeholder="14 000" oninput="lagreOgOppdater()">
+            </div>
+            <div class="row2">
+              <div class="field">
+                <label>Boligverdi (kr)</label>
+                <input type="number" id="f-bolig-verdi" placeholder="4 000 000" oninput="lagreOgOppdater()">
+              </div>
+              <div class="field">
+                <label>Boliglån restgjeld (kr)</label>
+                <input type="number" id="f-boliglan-saldo" placeholder="3 200 000" oninput="lagreOgOppdater()">
+                <div class="overfort-tag" id="hint-boliglan" style="display:none">↑ overført fra forrige periode</div>
+              </div>
+            </div>
+            <div class="row2">
+              <div class="field">
+                <label>Boliglån rente %</label>
+                <input type="number" id="f-boliglan-rente" placeholder="5.5" step="0.1" oninput="lagreOgOppdater()">
+              </div>
+              <div class="field">
+                <label>Ekstra nedbetaling / mnd (kr)</label>
+                <input type="number" id="f-ekstra-ned" placeholder="0" oninput="lagreOgOppdater()">
+              </div>
+            </div>
+            <div class="field">
+              <div class="info-wrap">
+                <span class="info-label">Planlagt boligsalg</span>
+                <span class="info-trigger" onclick="toggleInfo('info-boligsalg')">i</span>
+                <div class="info-popup" id="info-boligsalg">Skriv inn årstallet du planlegger å selge. Appen beregner da salgsproveny (salgspris minus restgjeld og 2,5% meglerhonorar) og overfører dette til neste periode automatisk.</div>
+              </div>
+              <div class="row2">
+                <div class="field">
+                  <label>Salgsår (f.eks. 2031)</label>
+                  <input type="number" id="f-salg-ar" placeholder="—" min="2025" max="2075" oninput="lagreOgOppdater()">
+                </div>
+                <div class="field">
+                  <label>Forventet salgspris (kr)</label>
+                  <input type="number" id="f-salg-pris" placeholder="—" oninput="lagreOgOppdater()">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DAGLIGE UTGIFTER -->
+      <div class="acc">
+        <div class="acc-head" onclick="toggleAcc('daglig')">
+          <div class="acc-head-title"><i class="ti ti-shopping-cart"></i> Daglige utgifter</div>
+          <i class="ti ti-chevron-down acc-chev open" id="chev-daglig"></i>
+        </div>
+        <div class="acc-body open" id="body-daglig">
+          <div class="row2">
+            <div class="field"><label>Mat og dagligvarer / mnd (kr)</label><input type="number" id="f-mat" placeholder="6 000" oninput="lagreOgOppdater()"></div>
+            <div class="field"><label>Transport / mnd (kr)</label><input type="number" id="f-transport" placeholder="3 000" oninput="lagreOgOppdater()"></div>
+          </div>
+          <div class="row2">
+            <div class="field"><label>Fritid og abonnementer / mnd (kr)</label><input type="number" id="f-fritid" placeholder="3 000" oninput="lagreOgOppdater()"></div>
+            <div class="field"><label>Andre faste utgifter / mnd (kr)</label><input type="number" id="f-andre" placeholder="1 000" oninput="lagreOgOppdater()"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GJELD -->
+      <div class="acc">
+        <div class="acc-head" onclick="toggleAcc('gjeld')">
+          <div class="acc-head-title"><i class="ti ti-credit-card"></i> Gjeld</div>
+          <i class="ti ti-chevron-down acc-chev" id="chev-gjeld"></i>
+        </div>
+        <div class="acc-body" id="body-gjeld">
+          <div id="studielan-hint-wrap"></div>
+          <div class="row2">
+            <div class="field">
+              <label>Studielån saldo (kr)</label>
+              <input type="number" id="f-studielan-saldo" placeholder="0" oninput="lagreOgOppdater()">
+              <div class="overfort-tag" id="hint-studielan" style="display:none">↑ overført</div>
+            </div>
+            <div class="field"><label>Studielån betaling / mnd (kr)</label><input type="number" id="f-studielan-mnd" placeholder="0" oninput="lagreOgOppdater()"></div>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>Billån saldo (kr)</label>
+              <input type="number" id="f-billan-saldo" placeholder="0" oninput="lagreOgOppdater()">
+              <div class="overfort-tag" id="hint-billan" style="display:none">↑ overført</div>
+            </div>
+            <div class="field"><label>Billån betaling / mnd (kr)</label><input type="number" id="f-billan-mnd" placeholder="0" oninput="lagreOgOppdater()"></div>
+          </div>
+          <div class="row2">
+            <div class="field"><label>Forbrukslån / kredittkort (kr)</label><input type="number" id="f-forbrukslan-saldo" placeholder="0" oninput="lagreOgOppdater()"></div>
+            <div class="field"><label>Forbrukslån betaling / mnd (kr)</label><input type="number" id="f-forbrukslan-mnd" placeholder="0" oninput="lagreOgOppdater()"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PENGER PÅ KONTO — kun hvis konto er huket av -->
+      <div id="seksjon-konto">
+        <div class="acc">
+          <div class="acc-head" onclick="toggleAcc('konto')">
+            <div class="acc-head-title"><i class="ti ti-building-bank"></i> Penger på konto (bankkonto, BSU o.l.)</div>
+            <i class="ti ti-chevron-down acc-chev open" id="chev-konto"></i>
+          </div>
+          <div class="acc-body open" id="body-konto">
+            <div class="sparekonto-liste" id="trygge-liste"></div>
+            <button class="btn-add btn-sm" onclick="leggTilKonto('trygg')"><i class="ti ti-plus"></i> Legg til konto</button>
+            <div class="divider"></div>
+            <div class="field">
+              <label>Månedlig sparing til konto / mnd (kr)</label>
+              <input type="number" id="f-spar-trygg-mnd" placeholder="0" oninput="lagreOgOppdater()">
+            </div>
+            <div class="field">
+              <div class="info-wrap">
+                <label class="info-label">BSU per år (kr, maks 27 500)</label>
+                <span class="info-trigger" onclick="toggleInfo('info-bsu')">i</span>
+                <div class="info-popup" id="info-bsu">BSU gir 10% skattefradrag på innskudd opp til kr 27 500 per år. Maksimal saldo er kr 300 000. Kun for personer under 34 år som ikke eier bolig.</div>
+              </div>
+              <input type="number" id="f-bsu-ar" placeholder="0" max="27500" oninput="lagreOgOppdater()">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INVESTERT I FOND — kun hvis fond er huket av -->
+      <div id="seksjon-fond">
+        <div class="acc">
+          <div class="acc-head" onclick="toggleAcc('fond')">
+            <div class="acc-head-title"><i class="ti ti-chart-line"></i> Investert i fond og aksjer</div>
+            <i class="ti ti-chevron-down acc-chev open" id="chev-fond"></i>
+          </div>
+          <div class="acc-body open" id="body-fond">
+            <div class="info-wrap" style="margin-bottom:.875rem;">
+              <span class="info-label" style="font-size:12px;color:var(--text2);">Disse midlene er eksponert mot markedet</span>
+              <span class="info-trigger" onclick="toggleInfo('info-fond')">i</span>
+              <div class="info-popup" id="info-fond">Investerte midler svinger i verdi. Avkastningen du setter inn er et estimat — historisk snitt for globale indeksfond er ca. 7% per år, men dette er ingen garanti.</div>
+            </div>
+            <div class="sparekonto-liste" id="investert-liste"></div>
+            <button class="btn-add btn-sm" onclick="leggTilKonto('investert')"><i class="ti ti-plus"></i> Legg til investering</button>
+            <div class="divider"></div>
+            <div class="row2">
+              <div class="field"><label>Månedlig sparing til fond / mnd (kr)</label><input type="number" id="f-spar-invest-mnd" placeholder="0" oninput="lagreOgOppdater()"></div>
+              <div class="field">
+                <div class="info-wrap">
+                  <label class="info-label">IPS per år (kr, maks 15 000)</label>
+                  <span class="info-trigger" onclick="toggleInfo('info-ips')">i</span>
+                  <div class="info-popup" id="info-ips">Individuell pensjonssparing gir 22% skattefradrag på innskudd opp til kr 15 000 per år. Pengene er låst til pensjonsalder.</div>
+                </div>
+                <input type="number" id="f-ips-ar" placeholder="0" max="15000" oninput="lagreOgOppdater()">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VEKSTPARAMETERE -->
+      <div class="acc">
+        <div class="acc-head" onclick="toggleAcc('avansert')">
+          <div class="acc-head-title"><i class="ti ti-settings"></i> Vekstparametere</div>
+          <i class="ti ti-chevron-down acc-chev" id="chev-avansert"></i>
+        </div>
+        <div class="acc-body" id="body-avansert">
+          <div class="row2">
+            <div class="field"><label>Inflasjon %/år</label><input type="number" id="f-inflasjon" value="3.0" step="0.1" oninput="lagreOgOppdater()"></div>
+            <div class="field"><label>Lønnsvekst %/år</label><input type="number" id="f-lonnsvekst" value="3.5" step="0.1" oninput="lagreOgOppdater()"></div>
+          </div>
+          <div class="row2">
+            <div class="field"><label>Boligprisvekst %/år</label><input type="number" id="f-boligpris" value="3.0" step="0.1" oninput="lagreOgOppdater()"></div>
+            <div class="field"><label>Avkastning investerte midler %/år</label><input type="number" id="f-fondavkastning" value="7.0" step="0.1" oninput="lagreOgOppdater()"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sumrad"><span>Totale utgifter / mnd</span><strong id="sum-utgifter">kr 0</strong></div>
+      <div class="sumrad" style="padding-top:4px;"><span>Månedlig overskudd</span><strong id="sum-overskudd">kr 0</strong></div>
+    </div>
+
+    <!-- HØYRE: LIVE -->
+    <div class="detail-right">
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-label">OVERSKUDD / MND</div><div class="kpi-value pos" id="kpi-mos">kr 0</div></div>
+        <div class="kpi-card"><div class="kpi-label">TOTAL GJELD</div><div class="kpi-value" id="kpi-gjeld">kr 0</div></div>
+        <div class="kpi-card"><div class="kpi-label">NETTOVERDI SLUTT</div><div class="kpi-value pos" id="kpi-nv">kr 0</div></div>
+        <div class="kpi-card"><div class="kpi-label">TOTALE MIDLER SLUTT</div><div class="kpi-value pos" id="kpi-sparing">kr 0</div></div>
+      </div>
+      <div class="chart-box"><h4>Nettoverdi i perioden</h4><div class="chart-wrap"><canvas id="chart-nv"></canvas></div></div>
+      <div class="chart-box"><h4>Månedlig budsjett</h4><div class="chart-wrap"><canvas id="chart-budsjett"></canvas></div></div>
+      <div class="chart-box"><h4>Gjeldsnedbetaling</h4><div class="chart-wrap"><canvas id="chart-gjeld"></canvas></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW 3: DASHBOARD -->
+<div class="view" id="view-dashboard">
+  <div class="dash-wrap">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+      <div>
+        <div style="font-size:20px;font-weight:600;letter-spacing:-.03em;">Samlet oversikt</div>
+        <div style="font-size:13px;color:var(--text2);" id="dash-subtitle"></div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="goView('detail')"><i class="ti ti-edit"></i> Rediger perioder</button>
+    </div>
+    <div class="dash-kpi-grid">
+      <div class="dash-kpi"><div class="dash-kpi-l">NETTOVERDI NÅ</div><div class="dash-kpi-v" id="d-nv-now">kr 0</div></div>
+      <div class="dash-kpi"><div class="dash-kpi-l">NETTOVERDI VED SLUTT</div><div class="dash-kpi-v pos" id="d-nv-end">kr 0</div></div>
+      <div class="dash-kpi"><div class="dash-kpi-l">TOTAL GJELD NÅ</div><div class="dash-kpi-v" id="d-gjeld-now">kr 0</div></div>
+      <div class="dash-kpi"><div class="dash-kpi-l">OVERSKUDD NÅ / MND</div><div class="dash-kpi-v" id="d-mos-now">kr 0</div></div>
+    </div>
+    <div style="font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--text3);margin-bottom:.5rem;text-transform:uppercase;">Inntektsbane</div>
+    <div class="tidslinje" id="dash-tidslinje"></div>
+    <div class="dash-charts">
+      <div class="dash-chart-box"><h3>Nettoverdi over tid</h3><div class="dash-chart-wrap"><canvas id="d-chart-nv"></canvas></div></div>
+      <div class="dash-chart-box"><h3>Formuesfordeling nå</h3><div class="dash-chart-wrap"><canvas id="d-chart-aktiva"></canvas></div></div>
+    </div>
+    <div class="dash-charts2">
+      <div class="dash-chart-box"><h3>Gjeld over tid</h3><div style="position:relative;height:200px;"><canvas id="d-chart-gjeld"></canvas></div></div>
+      <div class="dash-chart-box"><h3>Sparing og formue</h3><div style="position:relative;height:200px;"><canvas id="d-chart-sparing"></canvas></div></div>
+    </div>
+    <div class="dash-chart-box">
+      <h3>Fremskrivingstabell</h3>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>År</th><th>Periode</th><th>Eiendeler</th><th>Gjeld</th><th>Nettoverdi</th><th>Endring</th><th>Konto</th><th>Fond</th><th>Overskudd/mnd</th></tr></thead>
+          <tbody id="tabell-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== PIN =====
+const STD_PIN = '1234';
+let pinBuffer = '';
+
+function getSavedPin() { return localStorage.getItem('husstand_pin') || STD_PIN; }
+
+function pinTast(n) {
+  if (!n) return;
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += n;
+  oppdaterDots();
+  if (pinBuffer.length === 4) {
+    setTimeout(() => {
+      if (pinBuffer === getSavedPin()) {
+        document.getElementById('pin-screen').style.display = 'none';
+        sessionStorage.setItem('pin_ok', '1');
+      } else {
+        document.getElementById('pin-error').textContent = 'Feil PIN — prøv igjen';
+        document.querySelectorAll('.pin-dot').forEach(d => d.classList.add('shake'));
+        setTimeout(() => { pinBuffer = ''; oppdaterDots(); document.querySelectorAll('.pin-dot').forEach(d => d.classList.remove('shake')); }, 600);
+      }
+    }, 200);
+  }
+}
+function pinSlett() { pinBuffer = pinBuffer.slice(0,-1); oppdaterDots(); document.getElementById('pin-error').textContent = ''; }
+function oppdaterDots() {
+  for (let i=0;i<4;i++) {
+    document.getElementById('d'+i).classList.toggle('filled', i < pinBuffer.length);
+  }
+}
+function endrePIN() {
+  const ny = document.getElementById('ny-pin-input').value.trim();
+  if (ny.length !== 4 || !/^\d{4}$/.test(ny)) { alert('PIN må være 4 siffer'); return; }
+  localStorage.setItem('husstand_pin', ny);
+  alert('PIN er oppdatert til ' + ny);
+}
+// Sjekk om allerede logget inn i denne sesjonen
+if (sessionStorage.getItem('pin_ok') === '1') {
+  document.getElementById('pin-screen').style.display = 'none';
+}
+
+// ===== STATE =====
+let perioder = JSON.parse(localStorage.getItem('husstand_perioder') || '[]');
+let aktivPeriode = 0;
+const charts = {};
+let lang = localStorage.getItem('husstand_lang') || 'no';
+let theme = localStorage.getItem('husstand_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+// Avhukinger for steg 1 og steg 3
+let checks1 = { bolig: false, konto: false, fond: false };
+let checks2 = { bolig: false, konto: false, fond: false };
+
+function toggleCheck(key) {
+  checks1[key] = !checks1[key];
+  document.getElementById('cc-' + key).classList.toggle('checked', checks1[key]);
+}
+function toggleCheck2(key) {
+  checks2[key] = !checks2[key];
+  document.getElementById('cc2-' + key).classList.toggle('checked', checks2[key]);
+}
+
+function lagrePerioder() { localStorage.setItem('husstand_perioder', JSON.stringify(perioder)); }
+function lagreDetaljer() { localStorage.setItem('husstand_detaljer_' + aktivPeriode, JSON.stringify(hentSkjemaData())); }
+function hentLagretDetalj(idx) { const r = localStorage.getItem('husstand_detaljer_' + idx); return r ? JSON.parse(r) : {}; }
+
+// ===== THEME =====
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('theme-icon').className = theme === 'dark' ? 'ti ti-sun' : 'ti ti-moon';
+}
+function toggleTheme() { theme = theme==='dark'?'light':'dark'; localStorage.setItem('husstand_theme',theme); applyTheme(); }
+function toggleLang() { lang=lang==='no'?'en':'no'; localStorage.setItem('husstand_lang',lang); document.getElementById('lang-btn').textContent=lang==='no'?'EN':'NO'; }
+
+// ===== INFO BOBLER =====
+function toggleInfo(id) {
+  const el = document.getElementById(id);
+  const wasOpen = el.classList.contains('open');
+  document.querySelectorAll('.info-popup').forEach(p => p.classList.remove('open'));
+  if (!wasOpen) el.classList.add('open');
+}
+document.addEventListener('click', e => {
+  if (!e.target.classList.contains('info-trigger')) document.querySelectorAll('.info-popup').forEach(p => p.classList.remove('open'));
+});
+
+// ===== VIEWS =====
+function goView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  document.getElementById('tab-' + id).classList.add('active');
+  if (id === 'detail') visDetaljer(aktivPeriode);
+  if (id === 'dashboard') oppdaterDashboard();
+}
+
+// ===== WIZARD =====
+function velgVarighet(panel, ar) {
+  document.querySelectorAll('#dur-grid-' + panel + ' .dur-btn').forEach(b => b.classList.remove('sel'));
+  event.target.classList.add('sel');
+  document.getElementById('custom-dur-' + panel).classList.toggle('show', ar === -1);
+  if (panel === 1) sjekkSteg1(); else sjekkLeggTil();
+}
+function getVarighet(panel) {
+  const sel = document.querySelector('#dur-grid-' + panel + ' .dur-btn.sel');
+  if (!sel) return 0;
+  const txt = sel.textContent.trim();
+  if (txt === 'Egendefinert') return parseInt(document.getElementById('custom-ar-' + panel).value) || 0;
+  return parseInt(txt) || 0;
+}
+function sjekkSteg1() {
+  document.getElementById('btn-steg1').disabled = !(parseFloat(document.getElementById('w1-inntekt').value) > 0 && getVarighet(1) > 0);
+}
+function sjekkLeggTil() {
+  document.getElementById('btn-legg-til').disabled = !(parseFloat(document.getElementById('w3-inntekt').value) > 0 && getVarighet(2) > 0);
+}
+
+function gaaTilSteg(n) {
+  if (n === 3) {
+    const inntekt = parseFloat(document.getElementById('w1-inntekt').value) || 0;
+    const ar = getVarighet(1);
+    const navn = document.getElementById('w1-navn').value.trim() || 'Periode 1';
+    const inkl = { bolig: checks1.bolig, konto: checks1.konto, fond: checks1.fond };
+    if (perioder.length === 0) perioder = [{ id:0, navn, inntekt, ar, startAr:2025, inkl }];
+    else perioder[0] = { ...perioder[0], navn, inntekt, ar, inkl };
+    lagrePerioder(); oppdaterPeriodeListe();
+  }
+  if (n === 4) oppdaterOppsummering();
+  document.querySelectorAll('.wiz-step').forEach(s => s.classList.remove('active'));
+  document.getElementById('wiz-' + n).classList.add('active');
+  document.getElementById('wiz-prog').style.width = (n / 4 * 100) + '%';
+}
+
+function leggTilPeriode() {
+  const inntekt = parseFloat(document.getElementById('w3-inntekt').value) || 0;
+  const ar = getVarighet(2);
+  const navn = document.getElementById('w3-navn').value.trim() || ('Periode ' + (perioder.length + 1));
+  const inkl = { bolig: checks2.bolig, konto: checks2.konto, fond: checks2.fond };
+  const startAr = perioder.reduce((s, p) => s + p.ar, 2025);
+  perioder.push({ id: perioder.length, navn, inntekt, ar, startAr, inkl });
+  lagrePerioder();
+  document.getElementById('w3-inntekt').value = '';
+  document.getElementById('w3-navn').value = '';
+  document.querySelectorAll('#dur-grid-2 .dur-btn').forEach(b => b.classList.remove('sel'));
+  document.getElementById('custom-dur-2').classList.remove('show');
+  checks2 = { bolig: false, konto: false, fond: false };
+  ['bolig','konto','fond'].forEach(k => document.getElementById('cc2-'+k).classList.remove('checked'));
+  sjekkLeggTil(); oppdaterPeriodeListe();
+}
+
+function fjernPeriode(i) {
+  if (i === 0) return;
+  perioder.splice(i, 1);
+  let s = 2025 + perioder[0].ar;
+  for (let j = 1; j < perioder.length; j++) { perioder[j].startAr = s; s += perioder[j].ar; }
+  lagrePerioder(); oppdaterPeriodeListe();
+}
+
+function flagHTML(inkl) {
+  if (!inkl) return '';
+  const flags = [];
+  if (inkl.bolig) flags.push('<span class="p-flag">🏠 Bolig</span>');
+  if (inkl.konto) flags.push('<span class="p-flag">🏦 Konto</span>');
+  if (inkl.fond) flags.push('<span class="p-flag">📈 Fond</span>');
+  return flags.join('');
+}
+
+function oppdaterPeriodeListe() {
+  const el = document.getElementById('periode-liste');
+  if (!el) return;
+  el.innerHTML = perioder.map((p, i) => `
+    <div class="p-item">
+      <span class="p-item-name">${p.navn}</span>
+      <span class="p-item-label">${p.startAr}${p.ar>1?'–'+(p.startAr+p.ar-1):''}</span>
+      <span class="p-item-val">${fmt(p.inntekt)} / mnd · ${p.ar} år</span>
+      <span class="p-item-flags">${flagHTML(p.inkl)}</span>
+      ${i>0?`<button class="p-item-del" onclick="fjernPeriode(${i})"><i class="ti ti-x"></i></button>`:''}
+    </div>`).join('');
+}
+
+function oppdaterOppsummering() {
+  const el = document.getElementById('periode-liste-oppsummering');
+  if (!el) return;
+  el.innerHTML = perioder.map(p => `
+    <div class="p-item">
+      <span class="p-item-name">${p.navn}</span>
+      <span class="p-item-label">${p.startAr}${p.ar>1?'–'+(p.startAr+p.ar-1):''}</span>
+      <span class="p-item-val">${fmt(p.inntekt)} / mnd · ${p.ar} år</span>
+      <span class="p-item-flags">${flagHTML(p.inkl)}</span>
+    </div>`).join('');
+}
+
+function startDetaljer() {
+  localStorage.setItem('husstand_wizard_done', 'true');
+  aktivPeriode = 0;
+  goView('detail');
+}
+
+// ===== SPAREKONTO SYSTEM =====
+function hentKontoer(idx) { const r = localStorage.getItem('husstand_kontoer_' + idx); return r ? JSON.parse(r) : { trygge:[], investert:[] }; }
+function lagreKontoer(idx, data) { localStorage.setItem('husstand_kontoer_' + idx, JSON.stringify(data)); }
+
+function visKontoer(idx) {
+  renderKontoListe('trygge-liste', hentKontoer(idx).trygge, 'trygg', idx);
+  renderKontoListe('investert-liste', hentKontoer(idx).investert, 'investert', idx);
+}
+
+function renderKontoListe(elId, liste, type, idx) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  if (liste.length === 0) { el.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:4px 0 8px;">Ingen lagt til ennå — trykk knappen under.</div>'; return; }
+  el.innerHTML = liste.map((k, i) => `
+    <div class="sparekonto-item">
+      <div class="sparekonto-item-header">
+        <input type="text" value="${k.navn}" onchange="oppdaterKonto(${idx},'${type}',${i},'navn',this.value)" style="font-weight:600;font-size:13px;background:none;border:none;padding:0;outline:none;color:var(--text);font-family:var(--font);width:160px;" placeholder="Navn">
+        <button class="sparekonto-del" onclick="slettKonto(${idx},'${type}',${i})"><i class="ti ti-trash"></i></button>
+      </div>
+      ${k.overfort ? '<span class="overfort-tag">↑ overført fra forrige periode</span>' : ''}
+      <div class="sparekonto-row" style="margin-top:8px;">
+        <div class="field"><label>Startbeløp (kr)</label><input type="number" value="${k.saldo||''}" placeholder="0" onchange="oppdaterKonto(${idx},'${type}',${i},'saldo',this.value)" oninput="lagreOgOppdater()"></div>
+        <div class="field"><label>${type==='trygg'?'Rente %/år':'Avkastning %/år'}</label><input type="number" value="${k.avkastning||''}" placeholder="${type==='trygg'?'2.5':'7.0'}" step="0.1" onchange="oppdaterKonto(${idx},'${type}',${i},'avkastning',this.value)" oninput="lagreOgOppdater()"></div>
+        <div class="field"><label>Tilskudd / mnd (kr)</label><input type="number" value="${k.mndTilskudd||''}" placeholder="0" onchange="oppdaterKonto(${idx},'${type}',${i},'mndTilskudd',this.value)" oninput="lagreOgOppdater()"></div>
+      </div>
+    </div>`).join('');
+}
+
+function leggTilKonto(type) {
+  const k = hentKontoer(aktivPeriode);
+  const navn = type==='trygg'?(k.trygge.length===0?'BSU':'Bankkonto'):(k.investert.length===0?'Aksjefond':'Investering');
+  k[type==='trygg'?'trygge':'investert'].push({ navn, saldo:0, avkastning:type==='trygg'?2.5:7.0, mndTilskudd:0, overfort:false });
+  lagreKontoer(aktivPeriode, k);
+  visKontoer(aktivPeriode);
+  lagreOgOppdater();
+}
+
+function oppdaterKonto(idx, type, i, felt, val) {
+  const k = hentKontoer(idx);
+  const liste = type==='trygg'?k.trygge:k.investert;
+  liste[i][felt] = (felt==='saldo'||felt==='avkastning'||felt==='mndTilskudd') ? parseFloat(val)||0 : val;
+  lagreKontoer(idx, k);
+}
+
+function slettKonto(idx, type, i) {
+  const k = hentKontoer(idx);
+  if (type==='trygg') k.trygge.splice(i,1); else k.investert.splice(i,1);
+  lagreKontoer(idx, k);
+  visKontoer(idx);
+  lagreOgOppdater();
+}
+
+function beregnKontoerSlutt(idx) {
+  const p = perioder[idx], k = hentKontoer(idx), ar = p.ar;
+  const beregnListe = liste => liste.map(kk => {
+    let v = kk.saldo||0;
+    const avk = (kk.avkastning||0)/100;
+    for (let y=0;y<ar;y++) v = v*(1+avk) + (kk.mndTilskudd||0)*12;
+    return { ...kk, sluttVerdi: Math.round(v) };
+  });
+  const tryggeSlutt = beregnListe(k.trygge);
+  const investertSlutt = beregnListe(k.investert);
+  return { tryggeSlutt, investertSlutt, totalTrygg: tryggeSlutt.reduce((s,k)=>s+k.sluttVerdi,0), totalInvestert: investertSlutt.reduce((s,k)=>s+k.sluttVerdi,0) };
+}
+
+function overforKontoer(fra, til) {
+  const res = beregnKontoerSlutt(fra);
+  const eks = hentKontoer(til);
+  if (eks.trygge.length===0 && eks.investert.length===0) {
+    lagreKontoer(til, {
+      trygge: res.tryggeSlutt.map(k=>({...k,saldo:k.sluttVerdi,overfort:true})),
+      investert: res.investertSlutt.map(k=>({...k,saldo:k.sluttVerdi,overfort:true}))
+    });
+  }
+}
+
+// ===== PERIODEDETALJER =====
+function visDetaljer(idx) {
+  if (perioder.length===0) { goView('wizard'); return; }
+  aktivPeriode = idx;
+  const p = perioder[idx];
+  const inkl = p.inkl || { bolig:true, konto:true, fond:true };
+
+  document.getElementById('detail-badge').textContent = `Periode ${idx+1} av ${perioder.length}`;
+  document.getElementById('detail-title').textContent = p.navn;
+  document.getElementById('detail-subtitle').textContent = `${p.startAr}${p.ar>1?'–'+(p.startAr+p.ar-1):''} · ${fmt(p.inntekt)} / mnd`;
+  document.getElementById('detail-flags').innerHTML = flagHTML(inkl);
+  document.getElementById('btn-forrige').disabled = idx===0;
+  document.getElementById('btn-neste').disabled = idx===perioder.length-1;
+
+  // Vis/skjul seksjoner basert på avhukinger
+  document.getElementById('seksjon-bolig').style.display = inkl.bolig ? 'block' : 'none';
+  document.getElementById('seksjon-konto').style.display = inkl.konto ? 'block' : 'none';
+  document.getElementById('seksjon-fond').style.display = inkl.fond ? 'block' : 'none';
+
+  // Studielån-hint
+  const erStudie = p.navn.toLowerCase().includes('studie')||p.navn.toLowerCase().includes('student');
+  document.getElementById('studielan-hint-wrap').innerHTML = erStudie
+    ? `<div style="background:var(--amber-l);border:1px solid rgba(184,115,22,.2);border-radius:var(--rs);padding:10px 14px;font-size:12px;color:var(--text2);margin-bottom:.875rem;display:flex;gap:8px;"><i class="ti ti-info-circle" style="color:var(--amber);flex-shrink:0;"></i><div>Under studie krever ikke Lånekassen nedbetaling og renter kan utsettes. Fyll inn <strong>forventet saldo ved endt studie</strong> og sett månedlig betaling til 0.</div></div>` : '';
+
+  const d = hentLagretDetalj(idx);
+  ['bolig-mnd','bolig-verdi','boliglan-saldo','boliglan-rente','ekstra-ned','salg-ar','salg-pris',
+   'mat','transport','fritid','andre','studielan-saldo','studielan-mnd','billan-saldo','billan-mnd',
+   'forbrukslan-saldo','forbrukslan-mnd','spar-trygg-mnd','spar-invest-mnd','bsu-ar','ips-ar',
+   'inflasjon','lonnsvekst','boligpris','fondavkastning'].forEach(f => {
+    const el = document.getElementById('f-'+f);
+    if (el) el.value = d[f]!==undefined ? d[f] : (f==='inflasjon'?3.0:f==='lonnsvekst'?3.5:f==='boligpris'?3.0:f==='fondavkastning'?7.0:'');
+  });
+
+  if (idx > 0) {
+    const prev = beregn(idx-1);
+    if (prev) {
+      [['boliglan-saldo',prev.boliglanSlutt,'hint-boliglan'],['studielan-saldo',prev.studielanSlutt,'hint-studielan'],['billan-saldo',prev.billanSlutt,'hint-billan']].forEach(([f,v,h]) => {
+        const el=document.getElementById('f-'+f), hint=document.getElementById(h);
+        if (el&&!d[f]&&v>0) { el.value=Math.round(v); if(hint)hint.style.display='inline-block'; }
+        else if(hint)hint.style.display='none';
+      });
+      if (!d['bolig-verdi']&&prev.boligVerdiSlutt>0) { const bv=document.getElementById('f-bolig-verdi'); if(bv)bv.value=Math.round(prev.boligVerdiSlutt); }
+      overforKontoer(idx-1, idx);
+    }
+  }
+
+  visKontoer(idx);
+  oppdaterLiveGrafer();
+}
+
+function byttPeriode(dir) { lagreDetaljer(); const ny=aktivPeriode+dir; if(ny>=0&&ny<perioder.length)visDetaljer(ny); }
+
+function hentSkjemaData() {
+  const felt=['bolig-mnd','bolig-verdi','boliglan-saldo','boliglan-rente','ekstra-ned','salg-ar','salg-pris',
+    'mat','transport','fritid','andre','studielan-saldo','studielan-mnd','billan-saldo','billan-mnd',
+    'forbrukslan-saldo','forbrukslan-mnd','spar-trygg-mnd','spar-invest-mnd','bsu-ar','ips-ar',
+    'inflasjon','lonnsvekst','boligpris','fondavkastning'];
+  const d={};
+  felt.forEach(f=>{const el=document.getElementById('f-'+f);if(el)d[f]=parseFloat(el.value)||0;});
+  return d;
+}
+
+function toggleAcc(id) {
+  document.getElementById('body-'+id).classList.toggle('open');
+  document.getElementById('chev-'+id).classList.toggle('open');
+}
+
+let debTimer;
+function lagreOgOppdater() { clearTimeout(debTimer); debTimer=setTimeout(()=>{lagreDetaljer();oppdaterLiveGrafer();},300); }
+
+// ===== BEREGNING =====
+function fmt(n) { return 'kr '+Math.round(n).toLocaleString('nb-NO'); }
+
+function beregn(idx) {
+  const p=perioder[idx]; if(!p)return null;
+  const d=idx===aktivPeriode?hentSkjemaData():hentLagretDetalj(idx);
+  const ar=p.ar, inntekt=p.inntekt;
+  const utgifter=(d['bolig-mnd']||0)+(d['mat']||0)+(d['transport']||0)+(d['fritid']||0)+(d['andre']||0)+(d['studielan-mnd']||0)+(d['billan-mnd']||0)+(d['forbrukslan-mnd']||0);
+  const overskudd=inntekt-utgifter;
+  const boligRente=((d['boliglan-rente']||5.5)/100)/12;
+  const boligprisVekst=(d['boligpris']||3.0)/100;
+  let bl=d['boliglan-saldo']||0,sl=d['studielan-saldo']||0,bill=d['billan-saldo']||0,fl=d['forbrukslan-saldo']||0,bv=d['bolig-verdi']||0;
+  const nvA=[],eiA=[],gjA=[];
+  const kRes=beregnKontoerSlutt(idx);
+  for(let y=0;y<ar;y++){
+    bl=Math.max(0,bl*(1+boligRente*12)-(d['bolig-mnd']||0)*12-(d['ekstra-ned']||0)*12);
+    sl=Math.max(0,sl-(d['studielan-mnd']||0)*12);
+    bill=Math.max(0,bill-(d['billan-mnd']||0)*12);
+    fl=Math.max(0,fl-(d['forbrukslan-mnd']||0)*12);
+    bv*=(1+boligprisVekst);
+    const gj=bl+sl+bill+fl, prog=(y+1)/ar;
+    const ei=bv+kRes.totalTrygg*prog+kRes.totalInvestert*prog;
+    nvA.push(Math.round(ei-gj)); eiA.push(Math.round(ei)); gjA.push(Math.round(gj));
+  }
+  // Boligsalg basert på årstall
+  let salgProveny=0;
+  const salgAr=d['salg-ar']||0, salgPris=d['salg-pris']||0;
+  if(salgAr>=p.startAr&&salgAr<=p.startAr+ar&&salgPris>0){
+    salgProveny=Math.max(0,salgPris-bl-salgPris*0.025);
+  }
+  return { overskudd,utgifter,inntekt,nvA,eiA,gjA,
+    boliglanSlutt:bl,studielanSlutt:sl,billanSlutt:bill,boligVerdiSlutt:bv,salgProveny,
+    gjeldStart:(d['boliglan-saldo']||0)+(d['studielan-saldo']||0)+(d['billan-saldo']||0)+(d['forbrukslan-saldo']||0),
+    nvSlutt:nvA[nvA.length-1]||0,d,
+    tryggeSluttTotal:kRes.totalTrygg,investertSluttTotal:kRes.totalInvestert };
+}
+
+// ===== LIVE GRAFER =====
+function oppdaterLiveGrafer() {
+  const p=perioder[aktivPeriode]; if(!p)return;
+  const res=beregn(aktivPeriode); if(!res)return;
+  document.getElementById('sum-utgifter').textContent=fmt(res.utgifter);
+  const mosEl=document.getElementById('sum-overskudd');
+  mosEl.textContent=fmt(res.overskudd); mosEl.className=res.overskudd>=0?'pos':'neg';
+  document.getElementById('kpi-mos').textContent=fmt(res.overskudd);
+  document.getElementById('kpi-mos').className='kpi-value '+(res.overskudd>=0?'pos':'neg');
+  document.getElementById('kpi-gjeld').textContent=fmt(res.gjeldStart);
+  document.getElementById('kpi-nv').textContent=fmt(res.nvSlutt);
+  document.getElementById('kpi-sparing').textContent=fmt(res.tryggeSluttTotal+res.investertSluttTotal);
+  const labels=Array.from({length:p.ar},(_,i)=>p.startAr+i+1);
+  const isDark=theme==='dark',gc=isDark?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)',tc=isDark?'#666':'#aaa';
+  const bO={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:gc},ticks:{color:tc,font:{size:11}}},y:{grid:{color:gc},ticks:{color:tc,font:{size:11},callback:v=>'kr '+Math.round(v/1000)+'k'}}}};
+  mkChart('chart-nv','line',{labels,datasets:[{label:'Nettoverdi',data:res.nvA,borderColor:'#1D9E75',backgroundColor:'rgba(29,158,117,.08)',fill:true,tension:.3,pointRadius:2},{label:'Eiendeler',data:res.eiA,borderColor:'#378ADD',borderDash:[4,3],tension:.3,pointRadius:0},{label:'Gjeld',data:res.gjA,borderColor:'#A32D2D',borderDash:[4,3],tension:.3,pointRadius:0}]},bO);
+  const d=res.d;
+  mkChart('chart-budsjett','doughnut',{labels:['Bolig','Mat','Transport','Fritid','Gjeld','Andre'],datasets:[{data:[d['bolig-mnd']||0,d['mat']||0,d['transport']||0,d['fritid']||0,(d['studielan-mnd']||0)+(d['billan-mnd']||0)+(d['forbrukslan-mnd']||0),d['andre']||0],backgroundColor:['#1D9E75','#378ADD','#BA7517','#7F77DD','#A32D2D','#888'],borderWidth:0}]},{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:11},color:isDark?'#aaa':'#555',padding:8,boxWidth:12}}}});
+  let bl=d['boliglan-saldo']||0,sl=d['studielan-saldo']||0,bill=d['billan-saldo']||0;
+  const blD=[],slD=[],billD=[];
+  for(let y=0;y<p.ar;y++){bl=Math.max(0,bl-(d['bolig-mnd']||0)*12*0.4);sl=Math.max(0,sl-(d['studielan-mnd']||0)*12);bill=Math.max(0,bill-(d['billan-mnd']||0)*12);blD.push(Math.round(bl));slD.push(Math.round(sl));billD.push(Math.round(bill));}
+  mkChart('chart-gjeld','line',{labels,datasets:[{label:'Boliglån',data:blD,borderColor:'#A32D2D',tension:.3,pointRadius:2},{label:'Studielån',data:slD,borderColor:'#BA7517',tension:.3,pointRadius:2},{label:'Billån',data:billD,borderColor:'#888',tension:.3,pointRadius:2}]},{...bO,plugins:{legend:{display:true,labels:{font:{size:11},color:isDark?'#aaa':'#555'}}}});
+}
+
+function mkChart(id,type,data,options){if(charts[id])charts[id].destroy();const ctx=document.getElementById(id);if(!ctx)return;charts[id]=new Chart(ctx,{type,data,options});}
+
+// ===== DASHBOARD =====
+function oppdaterDashboard() {
+  if(perioder.length===0)return;
+  const isDark=theme==='dark',gc=isDark?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)',tc=isDark?'#666':'#aaa';
+  const aL=[],aNV=[],aGj=[],aEi=[],aTr=[],aIn=[];
+  perioder.forEach((p,idx)=>{
+    const res=beregn(idx); if(!res)return;
+    for(let y=0;y<p.ar;y++){aL.push(p.startAr+y+1);aNV.push(res.nvA[y]);aGj.push(res.gjA[y]);aEi.push(res.eiA[y]);aTr.push(Math.round(res.tryggeSluttTotal*(y+1)/p.ar));aIn.push(Math.round(res.investertSluttTotal*(y+1)/p.ar));}
+  });
+  const r0=beregn(0);
+  document.getElementById('d-nv-now').textContent=fmt(r0?r0.nvA[0]||0:0);
+  document.getElementById('d-nv-end').textContent=fmt(aNV[aNV.length-1]||0);
+  document.getElementById('d-gjeld-now').textContent=fmt(r0?r0.gjeldStart:0);
+  const m0=r0?r0.overskudd:0;
+  const mEl=document.getElementById('d-mos-now');
+  mEl.textContent=fmt(m0);mEl.className='dash-kpi-v '+(m0>=0?'pos':'neg');
+  const totAr=perioder.reduce((s,p)=>s+p.ar,0);
+  document.getElementById('dash-subtitle').textContent=`${perioder.length} periode${perioder.length>1?'r':''} · ${totAr} år totalt (2025–${2025+totAr})`;
+  document.getElementById('dash-tidslinje').innerHTML=perioder.map((p,i)=>{
+    const res=beregn(i),mos=res?res.overskudd:0,cls=mos>3000?'pos':mos<0?'neg':'neu',act=i===aktivPeriode?' active-seg':'';
+    return `<div class="tl-seg ${cls}${act}" onclick="aktivPeriode=${i};goView('detail')"><div class="tl-ar">${p.startAr}${p.ar>1?'–'+(p.startAr+p.ar-1):''}</div><div class="tl-name">${p.navn}</div><div class="tl-val">${fmt(p.inntekt)}</div></div>`;
+  }).join('');
+  const bO={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:gc},ticks:{color:tc,font:{size:11},maxTicksLimit:10}},y:{grid:{color:gc},ticks:{color:tc,font:{size:11},callback:v=>'kr '+Math.round(v/1000)+'k'}}}};
+  mkChart('d-chart-nv','line',{labels:aL,datasets:[{data:aNV,borderColor:'#1D9E75',backgroundColor:'rgba(29,158,117,.07)',fill:true,tension:.3,pointRadius:0},{data:aEi,borderColor:'#378ADD',borderDash:[4,3],tension:.3,pointRadius:0},{data:aGj,borderColor:'#A32D2D',borderDash:[4,3],tension:.3,pointRadius:0}]},{...bO,plugins:{legend:{display:true,labels:{font:{size:11},color:isDark?'#aaa':'#555',generateLabels:()=>[{text:'Nettoverdi',fillStyle:'#1D9E75',strokeStyle:'#1D9E75',lineWidth:2},{text:'Eiendeler',fillStyle:'#378ADD',strokeStyle:'#378ADD',lineWidth:2},{text:'Gjeld',fillStyle:'#A32D2D',strokeStyle:'#A32D2D',lineWidth:2}]}}}});
+  const k0=hentKontoer(0),d0=hentLagretDetalj(0);
+  mkChart('d-chart-aktiva','doughnut',{labels:[...k0.trygge.map(k=>k.navn),...k0.investert.map(k=>k.navn),'Bolig'],datasets:[{data:[...k0.trygge.map(k=>k.saldo||0),...k0.investert.map(k=>k.saldo||0),d0['bolig-verdi']||0],backgroundColor:['#1D9E75','#5DCAA5','#378ADD','#60A5FA','#818CF8','#BA7517'],borderWidth:0}]},{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:11},color:isDark?'#aaa':'#555',padding:8,boxWidth:12}}}});
+  mkChart('d-chart-gjeld','line',{labels:aL,datasets:[{data:aGj,borderColor:'#A32D2D',backgroundColor:'rgba(163,45,45,.07)',fill:true,tension:.3,pointRadius:0}]},bO);
+  mkChart('d-chart-sparing','line',{labels:aL,datasets:[{label:'Konto',data:aTr,borderColor:'#1D9E75',backgroundColor:'rgba(29,158,117,.07)',fill:true,tension:.3,pointRadius:0},{label:'Fond',data:aIn,borderColor:'#378ADD',backgroundColor:'rgba(55,138,221,.07)',fill:true,tension:.3,pointRadius:0}]},{...bO,plugins:{legend:{display:true,labels:{font:{size:11},color:isDark?'#aaa':'#555'}}}});
+  let pNV=null;
+  document.getElementById('tabell-body').innerHTML=perioder.flatMap((p,idx)=>{
+    const res=beregn(idx); if(!res)return[];
+    return Array.from({length:p.ar},(_,y)=>{
+      const nv=res.nvA[y],end=pNV!==null?nv-pNV:null; pNV=nv;
+      const et=end!==null?(end>=0?'+':'')+fmt(end):'—',ec=end!==null?(end>=0?'pos':'neg'):'';
+      return `<tr><td><strong>${p.startAr+y+1}</strong></td><td style="color:var(--text2)">${p.navn}</td><td>${fmt(res.eiA[y])}</td><td>${fmt(res.gjA[y])}</td><td><strong>${fmt(nv)}</strong></td><td class="${ec}">${et}</td><td>${fmt(Math.round(res.tryggeSluttTotal*(y+1)/p.ar))}</td><td>${fmt(Math.round(res.investertSluttTotal*(y+1)/p.ar))}</td><td>${fmt(res.overskudd)}</td></tr>`;
+    });
+  }).join('');
+}
+
+// ===== RESET =====
+function resetAll() {
+  if(!confirm('Er du sikker på at du vil slette all data?'))return;
+  const pin=localStorage.getItem('husstand_pin');
+  localStorage.clear();
+  if(pin)localStorage.setItem('husstand_pin',pin);
+  perioder=[];aktivPeriode=0;
+  goView('wizard');
+  document.querySelectorAll('.wiz-step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('wiz-1').classList.add('active');
+  document.getElementById('wiz-prog').style.width='14%';
+}
+
+// ===== INIT =====
+applyTheme();
+if(perioder.length>0&&localStorage.getItem('husstand_wizard_done'))goView('detail');
+else if(perioder.length>0)oppdaterPeriodeListe();
+</script>
+</body>
+</html>
